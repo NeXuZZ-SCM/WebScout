@@ -18,15 +18,19 @@ COLORS = [GREEN, BLUE, GREY, YELLOW]
 
 def print_banner():
     """Imprime un banner estilizado con el nombre NeXuZZ WebScout."""
-    figlet = Figlet(font="cybermedium")
-    print(random.choice(COLORS) + figlet.renderText('NeXuZZ WebScout') + RESET)
+    try:
+        figlet = Figlet(font="cybermedium")
+        print(random.choice(COLORS) + figlet.renderText('NeXuZZ WebScout') + RESET)
+    except ImportError:
+        print(RED + "[!] Error: No se encontró el módulo 'pyfiglet'. Instálalo con 'pip install pyfiglet'" + RESET)
+        sys.exit(1)
 
 def validate_url(url):
     """Valida que la URL sea accesible antes de iniciar el escaneo."""
     try:
         response = requests.head(url, timeout=5)
         if response.status_code >= 400:
-            print(RED + f"[!] La URL {url} no es accesible (Status: {response.status_code})" + RESET)
+            print(RED + f"[!] La URL {url} no es accesible (Status: {response.status_code}" + RESET)
             sys.exit(1)
     except requests.RequestException as e:
         print(RED + f"[!] Error al conectar con {url}: {e}" + RESET)
@@ -39,13 +43,13 @@ def scan_directory(url, directory, timeout=5):
         response = requests.get(full_url, timeout=timeout, allow_redirects=False)
         status = response.status_code
         if status == 200:
-            print(GREEN + f"[+] Directorio encontrado: {full_url} (Status: {status})" + RESET)
+            print(GREEN + f"[+] Directorio encontrado: {full_url} (Status: {status}" + RESET)
         elif status == 403:
-            print(YELLOW + f"[!] Acceso denegado: {full_url} (Status: {status})" + RESET)
+            print(YELLOW + f"[!] Acceso denegado: {full_url} (Status: {status}" + RESET)
         elif status == 301 or status == 302:
-            print(BLUE + f"[*] Redirección encontrada: {full_url} (Status: {status})" + RESET)
+            print(BLUE + f"[*] Redirección encontrada: {full_url} (Status: {status}" + RESET)
         else:
-            print(RED + f"[-] No existe: {full_url} (Status: {status})" + RESET)
+            print(RED + f"[-] No existe: {full_url} (Status: {status}" + RESET)
     except requests.RequestException as e:
         print(GREY + f"[!] Error al intentar acceder a {full_url}: {e}" + RESET)
 
@@ -69,6 +73,11 @@ def main():
     try:
         with open(args.wordlist, 'r', encoding='utf-8') as file:
             directories = file.readlines()
+            if directories:
+                print(BLUE + f"[*] Primeros 5 directorios de la wordlist: {directories[:5]}" + RESET)
+            else:
+                print(YELLOW + "[!] La wordlist está vacía." + RESET)
+                sys.exit(1)
     except FileNotFoundError:
         print(RED + f"[!] Error: No se encontró la wordlist en {args.wordlist}" + RESET)
         sys.exit(1)
