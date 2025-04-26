@@ -7,6 +7,7 @@ from pyfiglet import Figlet
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin
 import sys
+import codecs
 
 GREEN = "\033[1;32m"
 BLUE = "\033[1;34m"
@@ -31,10 +32,10 @@ def validate_url(url):
     try:
         response = requests.head(url, timeout=5)
         if response.status_code >= 400:
-            print(RED + f"[!] La URL {url} no es accesible (Status: {response.status_code}" + RESET)
+            print(RED + "[!] La URL %s no es accesible (Status: %s)" % (url, response.status_code) + RESET)
             sys.exit(1)
     except requests.RequestException as e:
-        print(RED + f"[!] Error al conectar con {url}: {e}" + RESET)
+        print(RED + "[!] Error al conectar con %s: %s" % (url, e) + RESET)
         sys.exit(1)
 
 def scan_directory(url, directory, timeout=5):
@@ -44,15 +45,15 @@ def scan_directory(url, directory, timeout=5):
         response = requests.get(full_url, timeout=timeout, allow_redirects=False)
         status = response.status_code
         if status == 200:
-            print(GREEN + f"[+] Directorio encontrado: {full_url} (Status: {status}" + RESET)
+            print(GREEN + "[+] Directorio encontrado: %s (Status: %s)" % (full_url, status) + RESET)
         elif status == 403:
-            print(YELLOW + f"[!] Acceso denegado: {full_url} (Status: {status}" + RESET)
+            print(YELLOW + "[!] Acceso denegado: %s (Status: %s)" % (full_url, status) + RESET)
         elif status == 301 or status == 302:
-            print(BLUE + f"[*] Redirección encontrada: {full_url} (Status: {status}" + RESET)
+            print(BLUE + "[*] Redirección encontrada: %s (Status: %s)" % (full_url, status) + RESET)
         else:
-            print(RED + f"[-] No existe: {full_url} (Status: {status}" + RESET)
+            print(RED + "[-] No existe: %s (Status: %s)" % (full_url, status) + RESET)
     except requests.RequestException as e:
-        print(GREY + f"[!] Error al intentar acceder a {full_url}: {e}" + RESET)
+        print(GREY + "[!] Error al intentar acceder a %s: %s" % (full_url, e) + RESET)
 
 def main():
     parser = argparse.ArgumentParser(description="Herramienta para descubrir directorios en un sitio web")
@@ -65,35 +66,35 @@ def main():
     url = args.domain if args.domain.endswith('/') else args.domain + '/'
     
     print_banner()
-    print(BLUE + f"[*] Objetivo: {url}" + RESET)
-    print(BLUE + f"[*] Wordlist: {args.wordlist}" + RESET)
-    print(BLUE + f"[*] Hilos: {args.threads}" + RESET)
+    print(BLUE + "[*] Objetivo: %s" % url + RESET)
+    print(BLUE + "[*] Wordlist: %s" % args.wordlist + RESET)
+    print(BLUE + "[*] Hilos: %s" % args.threads + RESET)
 
     validate_url(url)
 
     try:
-        with open(args.wordlist, 'r', encoding='utf-8') as file:
+        with codecs.open(args.wordlist, 'r', encoding='utf-8') as file:
             directories = file.readlines()
             if directories:
-                print(BLUE + f"[*] Primeros 5 directorios de la wordlist: {directories[:5]}" + RESET)
+                print(BLUE + "[*] Primeros 5 directorios de la wordlist: %s" % directories[:5] + RESET)
             else:
                 print(YELLOW + "[!] La wordlist está vacía." + RESET)
                 sys.exit(1)
-    except FileNotFoundError:
-        print(RED + f"[!] Error: No se encontró la wordlist en {args.wordlist}" + RESET)
+    except IOError:
+        print(RED + "[!] Error: No se encontró la wordlist en %s" % args.wordlist + RESET)
         sys.exit(1)
     except UnicodeDecodeError:
         print(RED + "[!] Error: La wordlist no está en formato UTF-8" + RESET)
         sys.exit(1)
 
-    print(BLUE + f"[*] Total de directorios a probar: {len(directories)}" + RESET)
+    print(BLUE + "[*] Total de directorios a probar: %s" % len(directories) + RESET)
 
     start_time = time.time()
     with ThreadPoolExecutor(max_workers=args.threads) as executor:
         executor.map(lambda d: scan_directory(url, d, args.timeout), directories)
 
     elapsed_time = time.time() - start_time
-    print(YELLOW + f"\n[*] Escaneo completado en {elapsed_time:.2f} segundos" + RESET)
+    print(YELLOW + "\n[*] Escaneo completado en %.2f segundos" % elapsed_time + RESET)
 
 if __name__ == "__main__":
     try:
