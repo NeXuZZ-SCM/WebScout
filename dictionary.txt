@@ -1,5 +1,3 @@
-¡Claro! Aquí tienes cada palabra de la lista en una línea separada:
-
 actividad/
 sesion/
 permisos/
