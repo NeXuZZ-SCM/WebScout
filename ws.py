@@ -3,7 +3,6 @@ import requests
 import time
 import argparse
 import random
-from pyfiglet import Figlet
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin
 import sys
@@ -19,13 +18,8 @@ YELLOW = "\033[1;33m"
 COLORS = [GREEN, BLUE, GREY, YELLOW]
 
 def print_banner():
-    """Imprime un banner estilizado con el nombre NeXuZZ WebScout."""
-    try:
-        figlet = Figlet(font="cybermedium")
-        print(random.choice(COLORS) + figlet.renderText('NeXuZZ WebScout') + RESET)
-    except ImportError:
-        print(RED + "[!] Error: No se encontró el módulo 'pyfiglet'. Instálalo con 'pip install pyfiglet'" + RESET)
-        sys.exit(1)
+    """Imprime un mensaje simple en lugar del banner estilizado."""
+    print(random.choice(COLORS) + "=== NeXuZZ WebScout ===" + RESET)
 
 def validate_url(url):
     """Valida que la URL sea accesible antes de iniciar el escaneo."""
