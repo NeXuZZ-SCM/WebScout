@@ -18,11 +18,18 @@ YELLOW = "\033[1;33m"
 COLORS = [GREEN, BLUE, GREY, YELLOW]
 
 def print_banner():
-    """Imprime un mensaje simple en lugar del banner estilizado."""
-    print(random.choice(COLORS) + "=== NeXuZZ WebScout ===" + RESET)
+    # Arte ASCII para "NeXuZZ WebScout"
+    banner = """
+ __          __  _     _____                 _   
+ \ \        / / | |   / ____|               | |  
+  \ \  /\  / /__| |__| (___   ___ ___  _   _| |_ 
+   \ \/  \/ / _ \ '_ \\___ \ / __/ _ \| | | | __|
+    \  /\  /  __/ |_) |___) | (_| (_) | |_| | |_ 
+     \/  \/ \___|_.__/_____/ \___\___/ \__,_|\__|
+"""
+    print(random.choice(COLORS) + banner + RESET)
 
 def validate_url(url):
-    """Valida que la URL sea accesible antes de iniciar el escaneo."""
     try:
         response = requests.head(url, timeout=5)
         if response.status_code >= 400:
@@ -33,7 +40,6 @@ def validate_url(url):
         sys.exit(1)
 
 def scan_directory(url, directory, timeout=5):
-    """Escanea un directorio específico y maneja la respuesta."""
     try:
         full_url = urljoin(url, directory.strip())
         response = requests.get(full_url, timeout=timeout, allow_redirects=False)
